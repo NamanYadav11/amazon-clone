@@ -2,15 +2,35 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import StarIcon from '@mui/icons-material/Star'
 import { primeLogo } from '../asset';
+import {useDispatch} from "react-redux"
+import { addToBasket } from '../slice/basketSlice';
 
 
 
-const ProductCard=({title,price,image,description,category})=>{
+const ProductCard=({id,title,price,image,description,category})=>{
+
+  const dispatch=useDispatch();
+
+
   const [rating]=useState(
     Math.floor(Math.random()*(5-2+1))+2
   )
 
   const [hasPrime]=useState(Math.random()<0.5)
+
+  const addItemToBasket=()=>{
+    const product ={
+      title,
+      price,
+      image,
+      rating,
+      description,
+      category,
+      hasPrime,
+      id,
+    }
+    dispatch(addToBasket(product))
+  }
 
 
 
@@ -18,7 +38,7 @@ const ProductCard=({title,price,image,description,category})=>{
     <div className='relative flex flex-col m-5 bg-white z-30 p-10 text-left'>
       <p className='absolute top-2 right-2 text-xs italic text-gray-400'>{category}</p>
       <div className='flex justify-center'>
-        <img src={image} className='h-40' objectFit='contain' alt="" />
+        <img src={image} className='h-40' style={{ objectFit: 'cover' }} alt="" />
       </div>
       
       <h4 className='my-3'>{title}</h4>
@@ -26,7 +46,7 @@ const ProductCard=({title,price,image,description,category})=>{
         {Array(rating)
           .fill()
           .map((_,i)=>(
-            <StarIcon className='flex text-yellow-500' fontSize='small'/>
+            <StarIcon key={i} className='flex text-yellow-500' fontSize='small'/>
           ))
         }
       </div>
@@ -45,7 +65,7 @@ const ProductCard=({title,price,image,description,category})=>{
         </div>
       )}
 
-      <button className='mt-auto button'>Add to cart</button>
+      <button onClick={addItemToBasket} className='mt-auto button'>Add to cart</button>
 
     </div>
   )
@@ -69,13 +89,16 @@ function ProductFeed() {
       .slice(0,4)
       .map((product,index)=>{
         return(
-        <ProductCard             
+        <ProductCard  
+        id={product.id}           
         key={product.id}
         title={product.title}
         price={product.price}
         image={product.image}
         category={product.category}
-        description={product.description}/>
+        description={product.description}
+        product={product}
+        />
         )
       })}
 
@@ -86,7 +109,8 @@ function ProductFeed() {
       .slice(4,5)
       .map((product,index)=>{
         return(
-        <ProductCard             
+        <ProductCard     
+        id={product.id}         
         key={product.id}
         title={product.title}
         price={product.price}
@@ -102,7 +126,8 @@ function ProductFeed() {
       .slice(5,productData.length)
       .map((product,index)=>{
         return(
-        <ProductCard             
+        <ProductCard  
+        id={product.id}           
         key={product.id}
         title={product.title}
         price={product.price}

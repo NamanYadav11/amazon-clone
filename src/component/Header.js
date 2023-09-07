@@ -1,20 +1,48 @@
 import React from 'react'
-import { logo } from '../asset'
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import { useFirebase } from '../context/firebase'
+import {getAuth, signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { selectItems } from '../slice/basketSlice';
+
+
 
 function Header() {
+  const firebase=useFirebase()
+  const navigate=useNavigate()
+  const items=useSelector(selectItems)
+
+
+
+  const handleClick =()=>{
+    if(firebase.userName!=="Guest"){
+      const auth=getAuth()
+      signOut(auth).then(()=>{
+        navigate("/")
+      })
+    }
+    else{
+      navigate("/signin")
+    }
+
+  }
+
+
   return (
     <header>
       <div className='flex bg-[#131921] p-1 flex-grow py-2 items-center'>
-        <div className='ml-2 mt-2 flex items-center flex-grow sm:flex-grow-0'>
+        <div 
+        className='ml-2 mt-2 flex items-center flex-grow sm:flex-grow-0'>
           <img 
           width={100}  
           height={6} 
           src="https://links.papareact.com/f90"  
-          objectFit="contain"
+          style={{ objectFit: 'cover' }}
           alt="logo" 
+          onClick={()=> navigate("/")}
           className='cursor-pointer'
           />
         </div>
@@ -30,17 +58,22 @@ function Header() {
 
         <div className='text-white flex items-center text-xs space-x-6 text-left mx-2 whitespace-nowrap'>
           <div className='link'>
-            <p>Hello Naman Yadav</p>
+            <div onClick={handleClick}>
+            <p>{firebase.userName ? `Hello, ${firebase.userName}`: "Signup/ Login"}</p>
             <p className='font-extrabold md:text-sm'>Account & Lists</p>
+            </div>
           </div>
 
           <div className='link'>
-            <p>Returns</p>
+            <p>Returns</p> 
             <p className='font-extrabold md:text-sm'>& Orders</p>
           </div>
 
-          <div className=' relative link flex items-center'>
-            <span className='absolute top-0 right-0 md:right-7 h-4 w-4 bg-yellow-400 text-center rounded-full text-black font-bold '>0</span>
+          <div 
+          className=' relative link flex items-center'
+          onClick={()=> navigate("/checkout")}
+          >
+            <span className='absolute top-0 right-0 md:right-7 h-4 w-4 bg-yellow-400 text-center rounded-full text-black font-bold '>{items.length}</span>
             <ShoppingCartOutlinedIcon fontSize='large'/>
             <p className=' hidden md:inline font-extrabold md:text-sm mt-2'>Cart</p>
           </div>
